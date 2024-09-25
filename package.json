@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@google-cloud/translate": "^8.3.0",
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mqtt": "^5.5.2",
+    "node": "^18.20.2"
+  }
+}

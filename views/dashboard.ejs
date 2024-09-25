@@ -1,0 +1,515 @@
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #chat-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 500px;
+        }
+        h1 {
+            text-align: center;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 12px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 24px;
+        }
+        #message-container {
+            flex: 1;
+            overflow-y: scroll;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+        }
+        .message {
+            padding: 8px 12px;
+            border-radius: 15px;
+            margin: 5px;
+            max-width: 70%;
+        }
+        .sent {
+            align-self: flex-end;
+            background-color: #0dd255;
+            color: white;
+        }
+        .received {
+            align-self: flex-start;
+            background-color: #ddd;
+        }
+        .message-username {
+            font-weight: bold;
+        }
+        form {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0dd255;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Chat - <%= username %></h1>
+        <div id="message-container"></div>
+        <form id="message-form">
+            <input type="text" id="message" name="message" placeholder="Enter message" required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('message-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
+
+            fetch('/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    addMessageToDisplay({ message, username: '<%= username %>' }, 'sent');
+                    messageInput.value = ''; // Clear input after sending
+                }
+            })
+            .catch(error => console.error('Error sending message:', error));
+        });
+
+        function addMessageToDisplay(messageObj, type) {
+            const messageContainer = document.getElementById('message-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + type;
+            messageDiv.innerHTML = `<span class="message-username">${messageObj.username}:</span> ${messageObj.message}`;
+            messageContainer.appendChild(messageDiv);
+            messageContainer.scrollTop = messageContainer.scrollHeight; // Scroll to bottom
+        }
+
+        function loadChatHistory() {
+            fetch('/display')
+            .then(response => response.json())
+            .then(data => {
+                const messageContainer = document.getElementById('message-container');
+                messageContainer.innerHTML = ''; // Clear previous messages
+                data.chatHistory.forEach(messageObj => {
+                    const type = messageObj.username === '<%= username %>' ? 'sent' : 'received';
+                    addMessageToDisplay(messageObj, type);
+                });
+            })
+            .catch(error => console.error('Error loading chat history:', error));
+        }
+
+        // Load chat history when the page loads and update every 2 seconds
+        window.onload = loadChatHistory;
+        setInterval(loadChatHistory, 2000);
+    </script>
+</body>
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #chat-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 80vh;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: #04d24f;
+            color: white;
+            margin: 0;
+            padding: 12px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 24px;
+        }
+
+        #message-container {
+            flex: 1;
+            overflow-y: scroll;
+            padding: 20px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin: 10px;
+            max-width: 70%;
+            display: inline-block;
+            word-wrap: break-word;
+        }
+
+        .sent {
+            align-self: flex-end;
+            background-color: #37b808;
+            color: white;
+            text-align: right;
+        }
+
+        .received {
+            align-self: flex-start;
+            background-color: #e1e1e1;
+            color: black;
+            text-align: left;
+        }
+
+        .message-username {
+            font-weight: bold;
+        }
+
+        form {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            background-color: #fff;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Chat - <%= username %></h1>
+        <div id="message-container"></div>
+        <form id="message-form">
+            <input type="text" id="message" name="message" placeholder="Enter message" required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('message-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
+
+            fetch('/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    addMessageToDisplay({ message, username: '<%= username %>' }, 'sent');
+                    messageInput.value = ''; // Clear input after sending
+                }
+            })
+            .catch(error => console.error('Error sending message:', error));
+        });
+
+        function addMessageToDisplay(messageObj, type) {
+            const messageContainer = document.getElementById('message-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + type;
+            messageDiv.innerHTML = `<span class="message-username">${messageObj.username}:</span> ${messageObj.message}`;
+            messageContainer.appendChild(messageDiv);
+            messageContainer.scrollTop = messageContainer.scrollHeight; // Scroll to bottom
+        }
+
+        function loadChatHistory() {
+            fetch('/display')
+            .then(response => response.json())
+            .then(data => {
+                const messageContainer = document.getElementById('message-container');
+                messageContainer.innerHTML = ''; // Clear previous messages
+                data.chatHistory.forEach(messageObj => {
+                    const type = messageObj.username === '<%= username %>' ? 'sent' : 'received';
+                    addMessageToDisplay(messageObj, type);
+                });
+            })
+            .catch(error => console.error('Error loading chat history:', error));
+        }
+
+        // Load chat history when the page loads and update every 2 seconds
+        window.onload = loadChatHistory;
+        setInterval(loadChatHistory, 2000);
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #chat-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 80vh;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: #007bff;
+            color: white;
+            margin: 0;
+            padding: 12px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 24px;
+        }
+
+        #message-container {
+            flex: 1;
+            overflow-y: scroll;
+            padding: 20px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin: 10px;
+            max-width: 70%;
+            display: inline-block;
+            word-wrap: break-word;
+        }
+
+        .sent {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+            text-align: right;
+        }
+
+        .received {
+            align-self: flex-start;
+            background-color: #e1e1e1;
+            color: black;
+            text-align: left;
+        }
+
+        .message-username {
+            font-weight: bold;
+        }
+
+        form {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            background-color: #fff;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .new-user {
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+    }
+
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Chat - <%= username %></h1>
+        <div id="message-container"></div>
+        <form id="message-form">
+            <input type="text" id="message" name="message" placeholder="Enter message" required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+    let knownUsers = new Set();
+
+    document.getElementById('message-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const messageInput = document.getElementById('message');
+        const message = messageInput.value;
+
+        fetch('/submit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                addMessageToDisplay({ message, username: '<%= username %>' }, 'sent');
+                messageInput.value = ''; // Clear input after sending
+            }
+        })
+        .catch(error => console.error('Error sending message:', error));
+    });
+
+    function addMessageToDisplay(messageObj, type) {
+        const messageContainer = document.getElementById('message-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ' + type;
+        messageDiv.innerHTML = `<span class="message-username">${messageObj.username}:</span> ${messageObj.message}`;
+        messageContainer.appendChild(messageDiv);
+        messageContainer.scrollTop = messageContainer.scrollHeight; // Scroll to bottom
+
+        if (!knownUsers.has(messageObj.username)) {
+            knownUsers.add(messageObj.username);
+            if (messageObj.username !== '<%= username %>') {
+                const newUserMessage = document.createElement('div');
+                newUserMessage.className = 'message new-user';
+                newUserMessage.innerText = `New user joined: ${messageObj.username}`;
+                messageContainer.insertBefore(newUserMessage, messageContainer.firstChild);
+            }
+        }
+    }
+
+        function loadChatHistory() {
+            fetch('/display')
+            .then(response => response.json())
+            .then(data => {
+                const messageContainer = document.getElementById('message-container');
+                messageContainer.innerHTML = ''; // Clear previous messages
+                data.chatHistory.forEach(messageObj => {
+                    const type = messageObj.username === '<%= username %>' ? 'sent' : 'received';
+                    addMessageToDisplay(messageObj, type);
+                });
+            })
+            .catch(error => console.error('Error loading chat history:', error));
+        }
+
+        // Load chat history when the page loads and update every 2 seconds
+        window.onload = loadChatHistory;
+        setInterval(loadChatHistory, 2000);
+    </script>
+</body>
+</html>
